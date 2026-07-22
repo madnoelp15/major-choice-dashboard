@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Major Choice, Homeschool Funnel Dashboard</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <div>
+        <p class="eyebrow">Mach 7 Marketing</p>
+        <h1>Major Choice, Homeschool Funnel Dashboard</h1>
+        <p id="lastUpdated" class="subtle">Data as of loading...</p>
+      </div>
+      <div class="range-panel" aria-label="Date range controls">
+        <div class="range-buttons" role="group" aria-label="Date range presets">
+          <button class="range-button" type="button" data-range="7">Last 7 days</button>
+          <button class="range-button" type="button" data-range="30">Last 30 days</button>
+          <button class="range-button" type="button" data-range="month">This month</button>
+          <button class="range-button is-active" type="button" data-range="all">All time</button>
+          <button class="range-button" type="button" data-range="custom">Custom</button>
+        </div>
+        <div id="customRange" class="custom-range" hidden>
+          <label>
+            From
+            <input id="fromDate" type="date">
+          </label>
+          <label>
+            To
+            <input id="toDate" type="date">
+          </label>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section id="loadingState" class="loading-card">
+        <div class="spinner" aria-hidden="true"></div>
+        <div>
+          <strong>Loading dashboard data</strong>
+          <p>Fetching the published Google Sheet CSVs.</p>
+        </div>
+      </section>
+
+      <section id="errorBanner" class="notice" hidden></section>
+
+      <section class="section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Selected range</p>
+            <h2>Performance overview</h2>
+          </div>
+          <p id="rangeSummary" class="subtle"></p>
+        </div>
+        <div id="kpiGrid" class="kpi-grid"></div>
+      </section>
+
+      <section class="chart-grid">
+        <article class="panel chart-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Daily trend</p>
+              <h2>Spend and signups</h2>
+            </div>
+            <p class="subtle">Spend bars, landing-page signups line</p>
+          </div>
+          <div id="trendEmpty" class="empty-state" hidden>No daily data yet.</div>
+          <div class="chart-wrap">
+            <canvas id="trendChart" aria-label="Spend and leads trend chart"></canvas>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Live funnel</p>
+              <h2>Visits to submissions</h2>
+            </div>
+            <p class="subtle">Recomputed from selected dates</p>
+          </div>
+          <div id="funnelEmpty" class="empty-state" hidden>No funnel data yet.</div>
+          <div id="funnelSteps" class="funnel-steps"></div>
+        </article>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Quiz outcomes</p>
+            <h2>Submission breakdown</h2>
+          </div>
+          <p class="subtle">Outcomes are reported separately from submissions.</p>
+        </div>
+        <div id="outcomeGrid" class="outcome-grid"></div>
+      </section>
+
+      <section class="section">
+        <article class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Current snapshot</p>
+              <h2>Current pipeline</h2>
+            </div>
+            <p class="subtle">Not filtered by date range</p>
+          </div>
+          <div id="statusEmpty" class="empty-state" hidden>No pipeline data yet.</div>
+          <div class="table-wrap">
+            <table id="statusTable">
+              <thead>
+                <tr>
+                  <th>Status</th>
+                  <th>Qualified</th>
+                  <th>Unqualified</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+              <tfoot></tfoot>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section class="section">
+        <article class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Live from Klaviyo</p>
+              <h2>Email sequence performance</h2>
+            </div>
+          </div>
+          <div id="emailEmpty" class="empty-state" hidden>No email data yet.</div>
+          <div class="table-wrap email-table-wrap">
+            <table id="emailTable">
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>Sent</th>
+                  <th>Recipients</th>
+                  <th>Delivery</th>
+                  <th>Bounce</th>
+                  <th>Spam</th>
+                  <th>Unsub</th>
+                  <th>Open</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

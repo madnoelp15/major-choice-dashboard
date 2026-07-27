@@ -438,6 +438,7 @@ function renderEmailSequence() {
       <td>${emailPercent(row.spam_rate)}</td>
       <td>${emailPercent(row.unsub_rate)}</td>
       <td>${emailPercent(row.open_rate)}</td>
+      <td>${emailPercent(row.click_rate)}</td>
     </tr>
   `).join("");
 }

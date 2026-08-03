@@ -3,7 +3,8 @@ const CONFIG = {
   FUNNEL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vR-m-Ed1Zx5Jbhw_kTiD18bXr9j3--qBFtCYov9v_GONPAUegV4SUjuhCY-bBpdE-fBLClHrBPbW2Uf/pub?gid=205182846&single=true&output=csv",
   EMAIL_SEQUENCE: "https://docs.google.com/spreadsheets/d/e/2PACX-1vR-m-Ed1Zx5Jbhw_kTiD18bXr9j3--qBFtCYov9v_GONPAUegV4SUjuhCY-bBpdE-fBLClHrBPbW2Uf/pub?gid=1431254621&single=true&output=csv",
   LEAD_STATUSES: "https://docs.google.com/spreadsheets/d/e/2PACX-1vR-m-Ed1Zx5Jbhw_kTiD18bXr9j3--qBFtCYov9v_GONPAUegV4SUjuhCY-bBpdE-fBLClHrBPbW2Uf/pub?gid=354656874&single=true&output=csv",
-  META: "https://docs.google.com/spreadsheets/d/e/2PACX-1vR-m-Ed1Zx5Jbhw_kTiD18bXr9j3--qBFtCYov9v_GONPAUegV4SUjuhCY-bBpdE-fBLClHrBPbW2Uf/pub?gid=1305639501&single=true&output=csv"
+  META: "https://docs.google.com/spreadsheets/d/e/2PACX-1vR-m-Ed1Zx5Jbhw_kTiD18bXr9j3--qBFtCYov9v_GONPAUegV4SUjuhCY-bBpdE-fBLClHrBPbW2Uf/pub?gid=1305639501&single=true&output=csv",
+  NEWTOP_DAILY: "https://docs.google.com/spreadsheets/d/e/2PACX-1vR-m-Ed1Zx5Jbhw_kTiD18bXr9j3--qBFtCYov9v_GONPAUegV4SUjuhCY-bBpdE-fBLClHrBPbW2Uf/pub?gid=386066102&single=true&output=csv"
 };
 
 const state = {
@@ -11,17 +12,26 @@ const state = {
   leadStatuses: [],
   emailSequence: [],
   meta: [],
+  newTopDaily: [],
   failedFeeds: [],
   selectedRange: "all",
   customFrom: "",
   customTo: "",
-  trendChart: null
+  activeView: "homeschool",
+  trendChart: null,
+  newTopChart: null
 };
 
 const els = {
   loading: document.querySelector("#loadingState"),
   errorBanner: document.querySelector("#errorBanner"),
   lastUpdated: document.querySelector("#lastUpdated"),
+  viewButtons: document.querySelectorAll(".view-button"),
+  views: {
+    homeschool: document.querySelector("#view-homeschool"),
+    newtop: document.querySelector("#view-newtop"),
+    path: document.querySelector("#view-path")
+  },
   kpiGrid: document.querySelector("#kpiGrid"),
   rangeSummary: document.querySelector("#rangeSummary"),
   rangeButtons: document.querySelectorAll(".range-button"),
@@ -35,7 +45,13 @@ const els = {
   statusEmpty: document.querySelector("#statusEmpty"),
   statusTable: document.querySelector("#statusTable"),
   emailEmpty: document.querySelector("#emailEmpty"),
-  emailTable: document.querySelector("#emailTable")
+  emailTable: document.querySelector("#emailTable"),
+  newTopRangeSummary: document.querySelector("#newTopRangeSummary"),
+  newTopKpiGrid: document.querySelector("#newTopKpiGrid"),
+  newTopTrendEmpty: document.querySelector("#newTopTrendEmpty"),
+  newTopFunnelEmpty: document.querySelector("#newTopFunnelEmpty"),
+  newTopFunnelSteps: document.querySelector("#newTopFunnelSteps"),
+  newTopOutcomeGrid: document.querySelector("#newTopOutcomeGrid")
 };
 
 document.addEventListener("DOMContentLoaded", init);
@@ -63,6 +79,7 @@ async function init() {
       if (result.name === "LEAD_STATUSES") state.leadStatuses = result.rows.filter(hasAnyValue);
       if (result.name === "EMAIL_SEQUENCE") state.emailSequence = result.rows.filter(hasAnyValue);
       if (result.name === "META") state.meta = result.rows.filter(hasAnyValue);
+      if (result.name === "NEWTOP_DAILY") state.newTopDaily = normalizeNewTop(result.rows);
     }
 
     setupDateInputs();
@@ -118,6 +135,16 @@ function bindControls() {
     state.customTo = els.toDate.value;
     renderDateDrivenSections();
   });
+
+  els.viewButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      state.activeView = button.dataset.view;
+      els.viewButtons.forEach((item) => item.classList.toggle("is-active", item === button));
+      Object.entries(els.views).forEach(([name, section]) => {
+        section.hidden = name !== state.activeView;
+      });
+    });
+  });
 }
 
 function setupDateInputs() {
@@ -157,6 +184,25 @@ function normalizeDaily(rows) {
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
+function normalizeNewTop(rows) {
+  return rows
+    .filter((row) => row.date)
+    .map((row) => ({
+      ...row,
+      date: String(row.date).trim(),
+      spend: num(row.spend),
+      impressions: num(row.impressions),
+      clicks: num(row.clicks),
+      lp_visits: num(row.lp_visits),
+      submissions: num(row.submissions),
+      out_a: num(row.out_a),
+      out_b: num(row.out_b),
+      out_c: num(row.out_c),
+      out_d: num(row.out_d)
+    }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+
 function renderStaticSections() {
   const lastUpdated = findMeta("last_updated");
   els.lastUpdated.textContent = `Data as of ${lastUpdated || "not available"}`;
@@ -173,11 +219,25 @@ function renderDateDrivenSections() {
   renderTrend(filteredRows);
   renderFunnel(totals);
   renderOutcomes(totals);
+
+  try {
+    renderNewTopSections();
+  } catch (error) {
+    showGlobalNotice("New Top Funnel view failed to render. Other views are still available.");
+  }
 }
 
 function getFilteredDailyRows() {
-  if (!state.daily.length) return [];
-  const dates = state.daily.map((row) => row.date);
+  return filterRowsByRange(state.daily);
+}
+
+function getFilteredNewTopRows() {
+  return filterRowsByRange(state.newTopDaily);
+}
+
+function filterRowsByRange(rows) {
+  if (!rows.length) return [];
+  const dates = rows.map((row) => row.date);
   const minDate = dates[0];
   const maxDate = dates[dates.length - 1];
   let from = minDate;
@@ -195,7 +255,7 @@ function getFilteredDailyRows() {
   }
 
   if (from > to) [from, to] = [to, from];
-  return state.daily.filter((row) => row.date >= from && row.date <= to);
+  return rows.filter((row) => row.date >= from && row.date <= to);
 }
 
 function renderRangeSummary(rows) {
@@ -461,6 +521,203 @@ function sumDaily(rows) {
     out_unqualified: 0,
     out_nondiv_qual: 0
   });
+}
+
+function sumNewTop(rows) {
+  return rows.reduce((acc, row) => {
+    for (const key of ["spend", "impressions", "clicks", "lp_visits", "submissions", "out_a", "out_b", "out_c", "out_d"]) {
+      acc[key] += num(row[key]);
+    }
+    return acc;
+  }, {
+    spend: 0,
+    impressions: 0,
+    clicks: 0,
+    lp_visits: 0,
+    submissions: 0,
+    out_a: 0,
+    out_b: 0,
+    out_c: 0,
+    out_d: 0
+  });
+}
+
+function renderNewTopSections() {
+  const filteredRows = getFilteredNewTopRows();
+  const totals = sumNewTop(filteredRows);
+
+  renderNewTopRangeSummary(filteredRows);
+  renderNewTopKpis(totals, state.newTopDaily.length === 0);
+  renderNewTopTrend(filteredRows);
+  renderNewTopFunnel(totals);
+  renderNewTopOutcomes(totals);
+}
+
+function renderNewTopRangeSummary(rows) {
+  if (!state.newTopDaily.length) {
+    els.newTopRangeSummary.textContent = "No daily data loaded.";
+    return;
+  }
+
+  if (!rows.length) {
+    els.newTopRangeSummary.textContent = "No daily rows in the selected range.";
+    return;
+  }
+
+  const first = rows[0].date;
+  const last = rows[rows.length - 1].date;
+  els.newTopRangeSummary.textContent = first === last ? formatDate(first) : `${formatDate(first)} to ${formatDate(last)}`;
+}
+
+function renderNewTopKpis(totals, dataMissing) {
+  const kpis = dataMissing ? [
+    ["Spend", "&mdash;", "No daily data loaded"],
+    ["Page Views", "&mdash;", "No daily data loaded"],
+    ["Submissions", "&mdash;", "No daily data loaded"],
+    ["Cost per Submission", "&mdash;", "No daily data loaded"],
+    ["CTR", "&mdash;", "No daily data loaded"],
+    ["CPC", "&mdash;", "No daily data loaded"]
+  ] : [
+    ["Spend", usd(totals.spend), "Total ad spend"],
+    ["Page Views", integer(totals.lp_visits), "Landing-page visits"],
+    ["Submissions", integer(totals.submissions), "Quiz submissions"],
+    ["Cost per Submission", usd(divide(totals.spend, totals.submissions)), "Spend / submissions"],
+    ["CTR", percent(divide(totals.clicks, totals.impressions) * 100), "Clicks / impressions"],
+    ["CPC", usd(divide(totals.spend, totals.clicks)), "Spend / clicks"]
+  ];
+
+  els.newTopKpiGrid.innerHTML = kpis.map(([label, value, hint]) => `
+    <article class="kpi-card">
+      <div class="label">${label}</div>
+      <div class="value">${value}</div>
+      <div class="hint">${hint}</div>
+    </article>
+  `).join("");
+}
+
+function renderNewTopTrend(rows) {
+  const ctx = document.querySelector("#newTopTrendChart");
+  const hasRows = rows.length > 0;
+  els.newTopTrendEmpty.hidden = hasRows;
+  ctx.hidden = !hasRows;
+
+  if (!hasRows) {
+    if (state.newTopChart) state.newTopChart.destroy();
+    state.newTopChart = null;
+    return;
+  }
+
+  const chartData = {
+    labels: rows.map((row) => formatShortDate(row.date)),
+    datasets: [
+      {
+        type: "bar",
+        label: "Spend",
+        data: rows.map((row) => row.spend),
+        backgroundColor: "rgba(34, 103, 173, 0.78)",
+        borderRadius: 4,
+        yAxisID: "ySpend"
+      },
+      {
+        type: "line",
+        label: "Submissions",
+        data: rows.map((row) => row.submissions),
+        borderColor: "#2f8f6b",
+        backgroundColor: "#2f8f6b",
+        borderWidth: 3,
+        pointRadius: rows.length > 45 ? 0 : 3,
+        tension: 0.22,
+        yAxisID: "ySubmissions"
+      }
+    ]
+  };
+
+  if (state.newTopChart) {
+    state.newTopChart.data = chartData;
+    state.newTopChart.update();
+    return;
+  }
+
+  state.newTopChart = new Chart(ctx, {
+    data: chartData,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 8 } },
+        tooltip: {
+          callbacks: {
+            label: (context) => context.dataset.label === "Spend"
+              ? `Spend: ${usd(context.parsed.y)}`
+              : `Submissions: ${integer(context.parsed.y)}`
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 } },
+        ySpend: {
+          beginAtZero: true,
+          position: "left",
+          title: { display: true, text: "Spend" },
+          ticks: { callback: (value) => usd(value, 0) }
+        },
+        ySubmissions: {
+          beginAtZero: true,
+          position: "right",
+          grid: { drawOnChartArea: false },
+          title: { display: true, text: "Submissions" },
+          ticks: { precision: 0 }
+        }
+      }
+    }
+  });
+}
+
+function renderNewTopFunnel(totals) {
+  const steps = [
+    ["Landing Page Views", totals.lp_visits, null],
+    ["Quiz Submissions", totals.submissions, divide(totals.submissions, totals.lp_visits)]
+  ];
+  const max = Math.max(...steps.map((step) => step[1]), 0);
+  els.newTopFunnelEmpty.hidden = max > 0;
+  els.newTopFunnelSteps.innerHTML = max > 0 ? steps.map(([label, value, rate]) => {
+    const width = max ? Math.max(3, (value / max) * 100) : 0;
+    const rateText = rate === null ? "Top of funnel" : `${percent(rate * 100)} vs previous`;
+    return `
+      <div class="funnel-step">
+        <div class="funnel-step-header">
+          <div>
+            <span>${label}</span>
+            <strong>${integer(value)}</strong>
+          </div>
+          <span>${rateText}</span>
+        </div>
+        <div class="funnel-bar"><div style="width: ${width}%"></div></div>
+      </div>
+    `;
+  }).join("") : "";
+}
+
+function renderNewTopOutcomes(totals) {
+  const outcomes = [
+    ["Result A (Path to Potential)", totals.out_a],
+    ["Result B (Path to Potential)", totals.out_b],
+    ["Result C (Homeschool Quiz)", totals.out_c],
+    ["Result D (Homeschool Quiz)", totals.out_d]
+  ];
+  const max = Math.max(...outcomes.map((item) => item[1]), 0);
+
+  els.newTopOutcomeGrid.innerHTML = outcomes.map(([label, value]) => {
+    const width = max ? (value / max) * 100 : 0;
+    return `
+      <article class="outcome-card">
+        <div class="label">${label}</div>
+        <div class="value">${integer(value)}</div>
+        <div class="mini-bar"><div style="width: ${width}%"></div></div>
+      </article>
+    `;
+  }).join("");
 }
 
 function findMeta(key) {

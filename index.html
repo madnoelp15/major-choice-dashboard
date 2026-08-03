@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Major Choice, Homeschool Funnel Dashboard</title>
+    <title>Major Choice Dashboard</title>
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link rel="stylesheet" href="styles.css">
   </head>
@@ -11,8 +11,13 @@
     <header class="site-header">
       <div>
         <p class="eyebrow">Mach 7 Marketing</p>
-        <h1>Major Choice, Homeschool Funnel Dashboard</h1>
+        <h1>Major Choice Dashboard</h1>
         <p id="lastUpdated" class="subtle">Data as of loading...</p>
+        <div class="view-tabs" role="group" aria-label="Dashboard view">
+          <button class="view-button is-active" type="button" data-view="homeschool">Homeschool Funnel</button>
+          <button class="view-button" type="button" data-view="newtop">New Top Funnel</button>
+          <button class="view-button" type="button" data-view="path">Path To Potential</button>
+        </div>
       </div>
       <div class="range-panel" aria-label="Date range controls">
         <div class="range-buttons" role="group" aria-label="Date range presets">
@@ -46,6 +51,7 @@
 
       <section id="errorBanner" class="notice" hidden></section>
 
+      <div id="view-homeschool" class="view">
       <section class="section">
         <div class="section-heading">
           <div>
@@ -153,6 +159,71 @@
           </div>
         </article>
       </section>
+      </div>
+
+      <div id="view-newtop" class="view" hidden>
+        <section class="section">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Selected range</p>
+              <h2>New Top Funnel overview</h2>
+            </div>
+            <p id="newTopRangeSummary" class="subtle"></p>
+          </div>
+          <div id="newTopKpiGrid" class="kpi-grid kpi-grid--6"></div>
+        </section>
+
+        <section class="chart-grid">
+          <article class="panel chart-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Daily trend</p>
+                <h2>Spend and submissions</h2>
+              </div>
+              <p class="subtle">Spend bars, submissions line</p>
+            </div>
+            <div id="newTopTrendEmpty" class="empty-state" hidden>No daily data yet.</div>
+            <div class="chart-wrap">
+              <canvas id="newTopTrendChart" aria-label="New Top Funnel spend and submissions trend chart"></canvas>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Live funnel</p>
+                <h2>Views to submissions</h2>
+              </div>
+              <p class="subtle">Recomputed from selected dates</p>
+            </div>
+            <div id="newTopFunnelEmpty" class="empty-state" hidden>No funnel data yet.</div>
+            <div id="newTopFunnelSteps" class="funnel-steps"></div>
+          </article>
+        </section>
+
+        <section class="section">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Quiz outcomes</p>
+              <h2>Result breakdown</h2>
+            </div>
+          </div>
+          <div id="newTopOutcomeGrid" class="outcome-grid"></div>
+          <p class="subtle note">Results A &amp; B route to the Path to Potential offer; Results C &amp; D route into the Homeschool quiz.</p>
+        </section>
+
+        <section class="section">
+          <p class="subtle note">Email performance for this funnel is covered by the New Email Sequence - Homeschool flow already shown on the Homeschool Funnel view.</p>
+        </section>
+      </div>
+
+      <div id="view-path" class="view" hidden>
+        <section class="section">
+          <article class="panel placeholder-card">
+            <p>Path to Potential launches later. Ad performance and Stripe checkout revenue will be added once it goes live.</p>
+          </article>
+        </section>
+      </div>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>

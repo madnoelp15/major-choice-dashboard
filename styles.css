@@ -79,6 +79,40 @@ h2 {
   margin-top: 10px;
 }
 
+.view-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.view-button {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel-soft);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 10px 16px;
+}
+
+.view-button:hover,
+.view-button:focus-visible {
+  border-color: var(--blue);
+  outline: none;
+}
+
+.view-button.is-active {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #ffffff;
+}
+
+.view[hidden] {
+  display: none;
+}
+
 .range-panel {
   flex: 0 0 min(560px, 100%);
   background: var(--panel);
@@ -164,6 +198,10 @@ main {
   padding: 18px;
 }
 
+.loading-card[hidden] {
+  display: none;
+}
+
 .loading-card p {
   color: var(--muted);
 }
@@ -213,6 +251,10 @@ main {
   display: grid;
   grid-template-columns: repeat(7, minmax(140px, 1fr));
   gap: 14px;
+}
+
+.kpi-grid--6 {
+  grid-template-columns: repeat(6, minmax(140px, 1fr));
 }
 
 .kpi-card {
@@ -349,6 +391,17 @@ main {
   height: 100%;
 }
 
+.note {
+  margin-top: 14px;
+}
+
+.placeholder-card {
+  color: var(--muted);
+  font-size: 1rem;
+  padding: 32px;
+  text-align: center;
+}
+
 .table-wrap {
   overflow-x: auto;
 }
@@ -442,7 +495,8 @@ tfoot td {
     width: 100%;
   }
 
-  .kpi-grid {
+  .kpi-grid,
+  .kpi-grid--6 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
@@ -464,6 +518,7 @@ tfoot td {
   .range-buttons,
   .custom-range,
   .kpi-grid,
+  .kpi-grid--6,
   .outcome-grid {
     grid-template-columns: 1fr;
   }

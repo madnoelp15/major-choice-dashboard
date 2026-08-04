@@ -257,6 +257,10 @@ main {
   grid-template-columns: repeat(6, minmax(140px, 1fr));
 }
 
+.kpi-grid--5 {
+  grid-template-columns: repeat(5, minmax(140px, 1fr));
+}
+
 .kpi-card {
   min-height: 124px;
   padding: 16px;
@@ -402,6 +406,28 @@ main {
   text-align: center;
 }
 
+.callout-note {
+  background: var(--blue-soft);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--blue);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 0.92rem;
+  line-height: 1.55;
+  margin-top: 22px;
+  padding: 16px 18px;
+}
+
+.timeslot-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.timeslot-grid .outcome-card {
+  text-align: center;
+}
+
 .table-wrap {
   overflow-x: auto;
 }
@@ -460,6 +486,32 @@ th {
   width: calc(72% / 7);
 }
 
+#webinarEmailTable {
+  table-layout: fixed;
+}
+
+#webinarEmailTable th,
+#webinarEmailTable td {
+  font-size: 0.84rem;
+  padding: 10px 6px;
+  white-space: normal;
+}
+
+#webinarEmailTable th {
+  font-size: 0.68rem;
+}
+
+#webinarEmailTable th:first-child,
+#webinarEmailTable td:first-child {
+  width: 28%;
+  overflow-wrap: anywhere;
+}
+
+#webinarEmailTable th:not(:first-child),
+#webinarEmailTable td:not(:first-child) {
+  width: calc(72% / 7);
+}
+
 tfoot td {
   font-weight: 850;
 }
@@ -496,7 +548,8 @@ tfoot td {
   }
 
   .kpi-grid,
-  .kpi-grid--6 {
+  .kpi-grid--6,
+  .kpi-grid--5 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
@@ -519,7 +572,9 @@ tfoot td {
   .custom-range,
   .kpi-grid,
   .kpi-grid--6,
-  .outcome-grid {
+  .kpi-grid--5,
+  .outcome-grid,
+  .timeslot-grid {
     grid-template-columns: 1fr;
   }
 

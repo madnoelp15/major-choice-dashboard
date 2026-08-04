@@ -16,6 +16,8 @@
         <div class="view-tabs" role="group" aria-label="Dashboard view">
           <button class="view-button is-active" type="button" data-view="homeschool">Homeschool Funnel</button>
           <button class="view-button" type="button" data-view="newtop">New Top Funnel</button>
+          <button class="view-button" type="button" data-view="webinar">Webinar</button>
+          <button class="view-button" type="button" data-view="retargeting">Retargeting</button>
           <button class="view-button" type="button" data-view="path">Path To Potential</button>
         </div>
       </div>
@@ -214,6 +216,119 @@
 
         <section class="section">
           <p class="subtle note">Email performance for this funnel is covered by the New Email Sequence - Homeschool flow already shown on the Homeschool Funnel view.</p>
+        </section>
+      </div>
+
+      <div id="view-webinar" class="view" hidden>
+        <div class="callout-note">
+          <strong>This webinar view has known limits.</strong> The three campaign emails below were
+          sent to a broad audience as invitations, not only to registrants &mdash; so email
+          recipients and registrations are separate groups, not funnel steps. Registrations are
+          counted only from the two time-slot lists, so the real total may be higher. Live
+          attendance is not shown (it lives in the webinar platform), and registrants who continue
+          flow into the Homeschool quiz.
+        </div>
+
+        <section class="section">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Selected range</p>
+              <h2>Webinar overview</h2>
+            </div>
+            <p id="webinarRangeSummary" class="subtle"></p>
+          </div>
+          <div id="webinarKpiGrid" class="kpi-grid"></div>
+        </section>
+
+        <section class="chart-grid">
+          <article class="panel chart-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Daily trend</p>
+                <h2>Spend and registrations</h2>
+              </div>
+              <p class="subtle">Spend bars, total registrations line</p>
+            </div>
+            <div id="webinarTrendEmpty" class="empty-state" hidden>No daily data yet.</div>
+            <div class="chart-wrap">
+              <canvas id="webinarTrendChart" aria-label="Webinar spend and registrations trend chart"></canvas>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Selected range</p>
+                <h2>Registrations by time slot</h2>
+              </div>
+            </div>
+            <div id="webinarTimeSlotEmpty" class="empty-state" hidden>No daily data yet.</div>
+            <div id="webinarTimeSlot" class="timeslot-grid"></div>
+          </article>
+        </section>
+
+        <section class="section">
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Live from Klaviyo &middot; sent to the broader list, not only registrants</p>
+                <h2>Webinar invitation campaigns</h2>
+              </div>
+              <p class="subtle">Not filtered by date range</p>
+            </div>
+            <div id="webinarEmailEmpty" class="empty-state" hidden>No email data yet.</div>
+            <div class="table-wrap email-table-wrap">
+              <table id="webinarEmailTable">
+                <thead>
+                  <tr>
+                    <th>Email</th>
+                    <th>Sent</th>
+                    <th>Recipients</th>
+                    <th>Delivery</th>
+                    <th>Bounce</th>
+                    <th>Spam</th>
+                    <th>Unsub</th>
+                    <th>Open</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+      </div>
+
+      <div id="view-retargeting" class="view" hidden>
+        <div class="callout-note">
+          Retargeting sends video-testimonial ads to prior visitors; the landing page links
+          straight into the Homeschool quiz, so conversions appear on the Homeschool Funnel view.
+        </div>
+
+        <section class="section">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Selected range</p>
+              <h2>Retargeting overview</h2>
+            </div>
+            <p id="retargetingRangeSummary" class="subtle"></p>
+          </div>
+          <div id="retargetingKpiGrid" class="kpi-grid kpi-grid--5"></div>
+        </section>
+
+        <section class="section">
+          <article class="panel chart-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Daily trend</p>
+                <h2>Spend and clicks</h2>
+              </div>
+              <p class="subtle">Spend bars, clicks line</p>
+            </div>
+            <div id="retargetingTrendEmpty" class="empty-state" hidden>No daily data yet.</div>
+            <div class="chart-wrap">
+              <canvas id="retargetingTrendChart" aria-label="Retargeting spend and clicks trend chart"></canvas>
+            </div>
+          </article>
         </section>
       </div>
 

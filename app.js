@@ -202,15 +202,19 @@ function updateDateInputsForPreset() {
   const dates = state.daily.map((row) => row.date);
   const minDate = dates[0];
   const maxDate = dates[dates.length - 1];
+  const anchor = getAnchorDate() || maxDate;
   let from = minDate;
   let to = maxDate;
 
   if (state.selectedRange === "7") {
-    from = shiftDate(maxDate, -6);
+    from = shiftDate(anchor, -6);
+    to = anchor;
   } else if (state.selectedRange === "30") {
-    from = shiftDate(maxDate, -29);
+    from = shiftDate(anchor, -29);
+    to = anchor;
   } else if (state.selectedRange === "month") {
-    from = `${maxDate.slice(0, 8)}01`;
+    from = `${anchor.slice(0, 8)}01`;
+    to = anchor;
   }
 
   if (from > to) [from, to] = [to, from];
@@ -341,20 +345,36 @@ function getFilteredRetargetingRows() {
   return filterRowsByRange(state.retargetingDaily);
 }
 
+// The "today" reference for the 7/30/month presets. Each feed can lag behind
+// the others (e.g. webinar data trails the main daily feed by several days),
+// so presets must anchor on the most recent date seen across ALL feeds rather
+// than a given dataset's own last row - otherwise a lagging feed's "This
+// month" silently collapses to the same window as "All time".
+function getAnchorDate() {
+  const latestDates = [state.daily, state.newTopDaily, state.webinarDaily, state.retargetingDaily]
+    .map((rows) => (rows.length ? rows[rows.length - 1].date : null))
+    .filter(Boolean);
+  return latestDates.length ? latestDates.sort().pop() : null;
+}
+
 function filterRowsByRange(rows) {
   if (!rows.length) return [];
   const dates = rows.map((row) => row.date);
   const minDate = dates[0];
   const maxDate = dates[dates.length - 1];
+  const anchor = getAnchorDate() || maxDate;
   let from = minDate;
   let to = maxDate;
 
   if (state.selectedRange === "7") {
-    from = shiftDate(maxDate, -6);
+    from = shiftDate(anchor, -6);
+    to = anchor;
   } else if (state.selectedRange === "30") {
-    from = shiftDate(maxDate, -29);
+    from = shiftDate(anchor, -29);
+    to = anchor;
   } else if (state.selectedRange === "month") {
-    from = `${maxDate.slice(0, 8)}01`;
+    from = `${anchor.slice(0, 8)}01`;
+    to = anchor;
   } else if (state.selectedRange === "custom") {
     from = state.customFrom || minDate;
     to = state.customTo || maxDate;

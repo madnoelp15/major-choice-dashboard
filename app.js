@@ -144,7 +144,7 @@ function bindControls() {
     button.addEventListener("click", () => {
       state.selectedRange = button.dataset.range;
       els.rangeButtons.forEach((item) => item.classList.toggle("is-active", item === button));
-      els.customRange.hidden = state.selectedRange !== "custom";
+      updateDateInputsForPreset();
       renderDateDrivenSections();
     });
   });
@@ -181,10 +181,41 @@ function setupDateInputs() {
     input.max = max;
   }
 
-  els.fromDate.value = min;
-  els.toDate.value = max;
   state.customFrom = min;
   state.customTo = max;
+  updateDateInputsForPreset();
+}
+
+// Mirrors the preset math in filterRowsByRange so the From/To fields show the
+// same start/end dates that are actually driving the filtered results.
+function updateDateInputsForPreset() {
+  if (state.selectedRange === "custom") {
+    els.fromDate.disabled = false;
+    els.toDate.disabled = false;
+    return;
+  }
+
+  els.fromDate.disabled = true;
+  els.toDate.disabled = true;
+
+  if (!state.daily.length) return;
+  const dates = state.daily.map((row) => row.date);
+  const minDate = dates[0];
+  const maxDate = dates[dates.length - 1];
+  let from = minDate;
+  let to = maxDate;
+
+  if (state.selectedRange === "7") {
+    from = shiftDate(maxDate, -6);
+  } else if (state.selectedRange === "30") {
+    from = shiftDate(maxDate, -29);
+  } else if (state.selectedRange === "month") {
+    from = `${maxDate.slice(0, 8)}01`;
+  }
+
+  if (from > to) [from, to] = [to, from];
+  els.fromDate.value = from;
+  els.toDate.value = to;
 }
 
 function normalizeDaily(rows) {
